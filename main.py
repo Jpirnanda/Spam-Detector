@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+import pickle
 
 # Nomes das colunas conforme spambase.names
 COLUMN_NAMES = [
@@ -22,6 +25,29 @@ def main():
     df = pd.read_csv('spambase.data', header=None, names=COLUMN_NAMES)
     print('Dados carregados!')
     print(df.head())
+
+    # Separar variáveis de entrada (X) e saída (y)
+    X = df.drop('spam', axis=1)
+    y = df['spam']
+
+    # Dividir em treino e teste
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    print(f'Treino: {X_train.shape}, Teste: {X_test.shape}')
+
+    # Construir e treinar a rede neural
+    clf = MLPClassifier(hidden_layer_sizes=(10,), max_iter=300, random_state=42)
+    clf.fit(X_train, y_train)
+    print('\nRede neural treinada!')
+
+    # Avaliar o modelo
+    score = clf.score(X_test, y_test)
+    print(f'Acurácia no teste: {score:.2%}')
+
+    # Salvar o modelo treinado
+    with open('spam_model.pkl', 'wb') as f:
+        pickle.dump(clf, f)
+    print('Modelo salvo em spam_model.pkl')
+
 
 if __name__ == "__main__":
     main()
